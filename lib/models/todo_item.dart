@@ -7,25 +7,22 @@
 }
 */
 
-class TodoItem {
-  final int userId;
+class Album {
   final int id;
+  final int userId;
   final String title;
-  bool completed;
 
-  TodoItem({
-    required this.userId,
+  Album({
     required this.id,
+    required this.userId,
     required this.title,
-    this.completed = false,
   });
 
-  factory TodoItem.fromJson(Map<String, dynamic> json) {
-    return TodoItem(
-      userId: json['userId'],
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return Album(
       id: json['id'],
+      userId: json['userId'],
       title: json['title'],
-      completed: json['completed'],
     );
   }
 }

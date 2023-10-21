@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_list/models/todo_item.dart';
@@ -10,46 +9,42 @@ class HomePage extends StatefulWidget {
   @override
   State<HomePage> createState() => _HomePageState();
 }
-
 class _HomePageState extends State<HomePage> {
   final _dio = Dio(BaseOptions(responseType: ResponseType.plain));
-  List<TodoItem>? _itemList;
+  List<Album>? _albumList;
   String? _error;
 
-  void getTodos() async {
+  void getAlbums() async {
     try {
       setState(() {
         _error = null;
       });
 
-      // await Future.delayed(const Duration(seconds: 3), () {});
-
       final response =
-          await _dio.get('https://jsonplaceholder.typicode.com/todos');
+      await _dio.get('https://jsonplaceholder.typicode.com/albums');
       debugPrint(response.data.toString());
-      // parse
+
       List list = jsonDecode(response.data.toString());
       setState(() {
-        _itemList = list.map((item) => TodoItem.fromJson(item)).toList();
+        _albumList = list.map((item) => Album.fromJson(item)).toList();
       });
     } catch (e) {
       setState(() {
         _error = e.toString();
       });
-      debugPrint('เกิดข้อผิดพลาด: ${e.toString()}');
+      debugPrint('Error: ${e.toString()}');
     }
   }
 
   @override
   void initState() {
     super.initState();
-    getTodos();
+    getAlbums();
   }
 
   @override
   Widget build(BuildContext context) {
     Widget body;
-
     if (_error != null) {
       body = Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -58,33 +53,52 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
-              getTodos();
+              getAlbums();
             },
             child: const Text('RETRY'),
           )
         ],
       );
-    } else if (_itemList == null) {
+    } else if (_albumList == null) {
       body = const Center(child: CircularProgressIndicator());
     } else {
       body = ListView.builder(
-          itemCount: _itemList!.length,
-          itemBuilder: (context, index) {
-            var todoItem = _itemList![index];
-            return Card(
-                child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(children: [
-                      Expanded(child: Text(todoItem.title)),
-                      Checkbox(
-                          value: todoItem.completed,
-                          onChanged: (newValue) {
-                            setState(() {
-                              todoItem.completed = newValue!;
-                            });
-                          })
-                    ])));
-          });
+        itemCount: _albumList!.length,
+        itemBuilder: (context, index) {
+          var album = _albumList![index];
+          return Card(
+            child: ListTile(
+              title: Text(album.title),
+              subtitle: Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.pink[100], // Set the background color for both Album ID and User ID to pink
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.all(3.0),
+                    child: Text('Album ID: ${album.id}', style: TextStyle(
+                      fontSize: 12,
+                    ),),
+                  ),
+                  SizedBox(width: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.cyan[100], // Set the background color to pink
+                      borderRadius: BorderRadius.circular(20), // Optional: Add border radius for a rounded look
+                    ),// 10-pixel gap
+
+                    padding: const EdgeInsets.all(3.0),
+                    child: Text('User ID: ${album.userId}', style: TextStyle(
+                      fontSize: 12,
+                    ),),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
     }
 
     return Scaffold(body: body);
